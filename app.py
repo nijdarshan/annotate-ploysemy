@@ -4,7 +4,8 @@ import pandas as pd
 from streamlit_echarts import st_echarts
 
 # Color-blind friendly palette
-COLORS = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+COLORS = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+          '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
 
 def load_embeddings(file):
     return np.load(file)
@@ -19,24 +20,26 @@ def load_cluster_labels(file):
 
 def create_chart_options(embeddings, sentences, cluster_labels, used_indices):
     series_data = []
-    for cluster in np.unique(cluster_labels):
-        cluster_points = embeddings[cluster_labels == cluster]
-        cluster_sentences = [sentences[i] for i, label in enumerate(cluster_labels) if label == cluster and i not in used_indices]
-        
-        data = [
-            {
-                "value": point.tolist(),
-                "name": sentence
-            } for point, sentence in zip(cluster_points, cluster_sentences)
-        ]
-        
+    unique_clusters = np.unique(cluster_labels)
+    for cluster in unique_clusters:
+        cluster_indices = np.where(cluster_labels == cluster)[0]
+        cluster_data = []
+        for idx in cluster_indices:
+            if idx not in used_indices:
+                point = embeddings[idx]
+                sentence = sentences[idx]
+                cluster_data.append({
+                    "value": point.tolist(),
+                    "name": sentence
+                })
+
         series_data.append({
             "name": f"Cluster {cluster}",
             "type": "scatter",
-            "data": data,
+            "data": cluster_data,
             "symbolSize": 10,
             "itemStyle": {
-                "color": COLORS[cluster % len(COLORS)]
+                "color": COLORS[int(cluster) % len(COLORS)]
             }
         })
 
@@ -44,7 +47,8 @@ def create_chart_options(embeddings, sentences, cluster_labels, used_indices):
         "title": {"text": "Sentence Embeddings Visualization"},
         "tooltip": {
             "trigger": "item",
-            "formatter": "function(params) { return params.data.name; }"  # Correctly formatted for ECharts
+            "formatter": "<div style='white-space: normal; max-width: 300px;'>{b}</div>",
+            "renderMode": "html",
         },
         "xAxis": {"name": "Dimension 1"},
         "yAxis": {"name": "Dimension 2"},
@@ -63,7 +67,7 @@ def create_chart_options(embeddings, sentences, cluster_labels, used_indices):
             }
         ]
     }
-    
+
     return options
 
 def main():
@@ -93,20 +97,21 @@ def main():
 
         if len(embeddings) > 0 and len(sentences) > 0 and len(cluster_labels) > 0:
             options = create_chart_options(embeddings, sentences, cluster_labels, st.session_state.used_indices)
-            
+
+            # Adjust event handling to return a simple, serializable value
             events = {
-                "click": "function(params) { return params.data.name; }"
+                "click": "function(params) { return params.name; }"
             }
-            
+
             selected_point = st_echarts(options=options, events=events, height="600px")
-            
+
             if selected_point:
                 st.session_state.selected_sentence = selected_point
 
             if st.session_state.selected_sentence:
                 st.subheader("Selected sentence:")
                 st.write(st.session_state.selected_sentence)
-                
+
                 col1, col2 = st.columns(2)
                 with col1:
                     if st.button("Add to Cluster 1"):
@@ -114,16 +119,16 @@ def main():
                         if index is not None and index not in st.session_state.used_indices:
                             st.session_state.cluster1.append((index, st.session_state.selected_sentence))
                             st.session_state.used_indices.add(index)
-                            st.experimental_rerun()  # Use this to refresh the app state
+                            st.rerun()  # Use st.rerun() to refresh the app state
                 with col2:
                     if st.button("Add to Cluster 2"):
                         index = next((i for i, s in sentences.items() if s == st.session_state.selected_sentence), None)
-                        if index is not None and index not in st.session_state.used_indices and index not in [i[0] for i in st.session_state.cluster1]:
+                        if index is not None and index not in st.session_state.used_indices:
                             st.session_state.cluster2.append((index, st.session_state.selected_sentence))
                             st.session_state.used_indices.add(index)
-                            st.experimental_rerun()  # Use this to refresh the app state
+                            st.rerun()  # Use st.rerun() to refresh the app state
 
-            # Debugging: Print the contents of cluster1 and cluster2
+            # Display the contents of cluster1 and cluster2
             st.write("Cluster 1 Contents:", st.session_state.cluster1)
             st.write("Cluster 2 Contents:", st.session_state.cluster2)
 
@@ -137,7 +142,7 @@ def main():
                         if st.button(f"Delete from Cluster 1", key=f"del1_{i}"):
                             st.session_state.cluster1.pop(i)
                             st.session_state.used_indices.remove(index)
-                            st.experimental_rerun()  # Use this to refresh the app state
+                            st.rerun()  # Use st.rerun() to refresh the app state
                     else:
                         st.error("Unexpected item in Cluster 1")
 
@@ -150,7 +155,7 @@ def main():
                         if st.button(f"Delete from Cluster 2", key=f"del2_{i}"):
                             st.session_state.cluster2.pop(i)
                             st.session_state.used_indices.remove(index)
-                            st.experimental_rerun()  # Use this to refresh the app state
+                            st.rerun()  # Use st.rerun() to refresh the app state
                     else:
                         st.error("Unexpected item in Cluster 2")
 
