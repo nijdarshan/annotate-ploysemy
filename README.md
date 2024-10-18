@@ -106,11 +106,7 @@ To deploy this application on Google Cloud, follow these steps:
      ```
 
 ## Demo
-<video width="320" height="240" controls>
-  <source src="/media/demo.mp4" type="video/mp4">
-</video>
-
-https://github.com/nijdarshan/annotate-ploysemy/blob/main/media/demo.mp4
+https://github.com/user-attachments/assets/04dc15e1-3c69-46fa-b938-3bc992e82530
 
 ## File Descriptions
 
