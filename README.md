@@ -1,7 +1,9 @@
 # Polysemy Annotation Application
 
 ## Overview
-`annotate-ploysemy` is a Streamlit application designed to visualize sentence embeddings and facilitate the manual annotation of sentences into clusters. The application uses scatter plots to display embeddings and allows users to interactively select and categorize sentences.
+`annotate-ploysemy` is a Streamlit application designed to visualize sentence embeddings and facilitate the manual annotation of sentences into clusters. The application uses scatter plots to display embeddings and allows users to interactively select and categorize sentences.</br>
+
+![](/media/cluster.png)
 
 ## Prerequisites
 To fetch, clean, and cluster polysemy word embeddings, check out [how](https://github.com/nijdarshan/annotate-ploysemy/tree/main/prereqs)
@@ -102,6 +104,13 @@ To deploy this application on Google Cloud, follow these steps:
      ```bash
      gcloud run deploy polysemy-annotation-app --image gcr.io/<your-project-id>/polysemy-annotation-app --platform managed --region <your-region> --allow-unauthenticated
      ```
+
+## Demo
+<video width="320" height="240" controls>
+  <source src="/media/demo.mp4" type="video/mp4">
+</video>
+
+https://github.com/nijdarshan/annotate-ploysemy/blob/main/media/demo.mp4
 
 ## File Descriptions
 
