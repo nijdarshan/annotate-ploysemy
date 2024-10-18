@@ -87,3 +87,17 @@ class Database:
         except Exception as e:
             logging.error(f"Error saving annotation for user {user_id}: {e}")
             raise
+
+    def toggle_word_list(self, user_id):
+        try:
+            with self.get_db_cursor() as cur:
+                cur.execute("""
+                    UPDATE users
+                    SET word_list_toggle = NOT word_list_toggle
+                    WHERE id = %s
+                    RETURNING word_list_toggle
+                """, (user_id,))
+                return cur.fetchone()['word_list_toggle']
+        except Exception as e:
+            logging.error(f"Error toggling word list for user {user_id}: {e}")
+            raise

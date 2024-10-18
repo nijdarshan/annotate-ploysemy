@@ -1,6 +1,7 @@
 import bcrypt
 import streamlit as st
 from database import Database
+import logging
 
 def hash_password(password):
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
@@ -27,7 +28,7 @@ def register(db, username, password):
                 INSERT INTO users (username, password_hash)
                 VALUES (%s, %s)
             """, (username, hashed_password))
-        st.success("Registration successful! Please log in.")
+        return True
     except Exception as e:
-        st.error("Username already exists or another error occurred.")
-        print(f"Error: {e}")
+        logging.error(f"Error registering user {username}: {e}")
+        return False
