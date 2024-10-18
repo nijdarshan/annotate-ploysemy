@@ -4,6 +4,7 @@
 `annotate-ploysemy` is a Streamlit application designed to visualize sentence embeddings and facilitate the manual annotation of sentences into clusters. The application uses scatter plots to display embeddings and allows users to interactively select and categorize sentences.
 
 ## Prerequisites
+To fetch, clean, and cluster polysemy word embeddings, check out [how](https://github.com/nijdarshan/annotate-ploysemy/tree/main/prereqs)
 
 ## Features
 
